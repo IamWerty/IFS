@@ -1,124 +1,306 @@
 ﻿<Window x:Class="Invaders.Client.UI.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="IFS — Invaders File Server"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Invaders.Client"
+        mc:Ignorable="d"
+        Title="IFS - Remote Management System" 
         Height="600" Width="1000"
-        Background="#1E1E1E"
-        Foreground="White">
+        Background="#1E1E1E">
 
-    <DockPanel>
+    <Window.Resources>
+        <!-- Стилі для TreeView -->
+        <Style x:Key="TreeViewItemStyle" TargetType="TreeViewItem">
+            <Setter Property="Foreground" Value="#CCCCCC"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Margin" Value="0,2"/>
+        </Style>
 
-        <!-- ===== BOTTOM: LOG PANEL ===== -->
-        <Border DockPanel.Dock="Bottom"
-                Height="160"
-                Background="#111"
-                BorderBrush="#333"
-                BorderThickness="1">
-            <TextBox
-                IsReadOnly="True"
-                Background="#111"
-                Foreground="#8FCE00"
-                FontFamily="Consolas"
-                TextWrapping="Wrap"
-                VerticalScrollBarVisibility="Auto"
-                Text="
-[14:07] DOWNLOAD Data.json
-[14:08] RUN run.bat
-[14:30] EDIT Data.json
-[14:31] DELETE properties.json
-[14:37] UPLOAD properties.json
-[15:41] OPEN Logs"/>
-        </Border>
+        <!-- Стилі для кнопок -->
+        <Style x:Key="ModernButton" TargetType="Button">
+            <Setter Property="Background" Value="#2D2D30"/>
+            <Setter Property="Foreground" Value="#CCCCCC"/>
+            <Setter Property="BorderBrush" Value="#3F3F46"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="10,5"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="3">
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                            VerticalAlignment="Center"
+                                            Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#3E3E42"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="#007ACC"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
 
-        <!-- ===== RIGHT PANEL ===== -->
-        <Border DockPanel.Dock="Right"
-                Width="200"
-                Background="#2A2A2A"
-                BorderBrush="#333"
-                BorderThickness="1">
-            <TabControl Background="#2A2A2A">
-                <TabItem Header="Events">
-                    <ListBox>
-                        <ListBoxItem>Client connected</ListBoxItem>
-                        <ListBoxItem>File uploaded</ListBoxItem>
-                        <ListBoxItem>Command executed</ListBoxItem>
-                    </ListBox>
-                </TabItem>
+        <!-- Стиль для TextBox/Console -->
+        <Style x:Key="ConsoleTextBox" TargetType="TextBox">
+            <Setter Property="Background" Value="#0C0C0C"/>
+            <Setter Property="Foreground" Value="#00FF00"/>
+            <Setter Property="FontFamily" Value="Consolas"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="BorderBrush" Value="#3F3F46"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="5"/>
+        </Style>
+    </Window.Resources>
 
-                <TabItem Header="Terminal">
-                    <TextBox FontFamily="Consolas"
-                             Background="Black"
-                             Foreground="#00FF00"
-                             AcceptsReturn="True"
-                             Text=">_"/>
-                </TabItem>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="23.1"/>
+            <ColumnDefinition Width="176.9"/>
+            <ColumnDefinition Width="5"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="5"/>
+            <ColumnDefinition Width="250"/>
+        </Grid.ColumnDefinitions>
 
-                <TabItem Header="Settings">
-                    <StackPanel Margin="10">
-                        <Button Content="Server settings" Margin="0 5"/>
-                        <Button Content="Network" Margin="0 5"/>
-                        <Button Content="Security" Margin="0 5"/>
-                    </StackPanel>
-                </TabItem>
-            </TabControl>
-        </Border>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="5"/>
+            <RowDefinition Height="200"/>
+        </Grid.RowDefinitions>
 
-        <!-- ===== LEFT PANEL ===== -->
-        <Border DockPanel.Dock="Left"
-                Width="220"
-                Background="#2A2A2A"
-                BorderBrush="#333"
-                BorderThickness="1">
-            <TreeView Background="#2A2A2A">
-                <TreeViewItem Header="USER">
-                    <TreeViewItem Header="SERVER-AAAA">
-                        <TreeViewItem Header="Alex"/>
-                        <TreeViewItem Header="Bob"/>
+        <!-- ========== ЛІВА ПАНЕЛЬ: USER/SERVER ========== -->
+        <Border Grid.Column="0" Grid.Row="0" Grid.RowSpan="3"
+                Background="#252526" 
+                BorderBrush="#3F3F46" 
+                BorderThickness="0,0,1,0" Grid.ColumnSpan="2">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Заголовок панелі -->
+                <Border Grid.Row="0" Background="#2D2D30" Padding="10,8">
+                    <TextBlock Text="IFS" 
+                               FontWeight="Bold" 
+                               FontSize="16" 
+                               Foreground="#FFFFFF" HorizontalAlignment="Right" Width="179"/>
+                </Border>
+
+                <!-- TreeView для користувачів та серверів -->
+                <TreeView Grid.Row="1" 
+                          Background="Transparent"
+                          BorderThickness="0"
+                          Padding="5">
+                    <TreeView.Resources>
+                        <Style TargetType="TreeViewItem" BasedOn="{StaticResource TreeViewItemStyle}"/>
+                    </TreeView.Resources>
+
+                    <!-- USER -->
+                    <TreeViewItem Header="👤 USER" IsExpanded="True" FontWeight="SemiBold">
+                        <TreeViewItem Header="🖥️ SERVER1"/>
+                        <TreeViewItem Header="👨 USER1"/>
+                        <TreeViewItem Header="👨 ALEX"/>
                     </TreeViewItem>
-                </TreeViewItem>
 
-                <TreeViewItem Header="SERVER-0001">
-                    <TreeViewItem Header="Werty"/>
-                    <TreeViewItem Header="Oksana"/>
-                    <TreeViewItem Header="Tony"/>
-                </TreeViewItem>
-            </TreeView>
+                    <!-- SERVER -->
+                    <TreeViewItem Header="🖥️ SERVER" IsExpanded="True" FontWeight="SemiBold">
+                        <TreeViewItem Header="⚙️ SERVER1 (0001)"/>
+                        <TreeViewItem Header="⚙️ SERVER2 (0002)"/>
+                    </TreeViewItem>
+
+                    <!-- Додаткові вузли -->
+                    <TreeViewItem Header="📝 WRIT (0002)" FontWeight="Normal"/>
+                    <TreeViewItem Header="📄 OSW (0003)" FontWeight="Normal"/>
+                    <TreeViewItem Header="🔧 ION (0004)" FontWeight="Normal"/>
+                </TreeView>
+            </Grid>
         </Border>
 
-        <!-- ===== CENTER PANEL ===== -->
-        <Grid Background="#1E1E1E">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
+        <!-- Вертикальний Splitter -->
+        <GridSplitter Grid.Column="2" Grid.Row="0" Grid.RowSpan="3"
+                      Width="5" 
+                      HorizontalAlignment="Stretch"
+                      Background="#3F3F46"/>
 
-            <!-- Path -->
-            <TextBlock Grid.Row="0"
-                       Margin="10"
-                       Text="\\shared\"
-                       FontWeight="Bold"/>
+        <!-- ========== ЦЕНТРАЛЬНА ПАНЕЛЬ: FILE EXPLORER ========== -->
+        <Border Grid.Column="3" Grid.Row="0"
+                Background="#1E1E1E" 
+                BorderBrush="#3F3F46" 
+                BorderThickness="0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
 
-            <!-- Files -->
-            <ListView Grid.Row="1" Margin="10">
-                <ListViewItem>📁 Folder1</ListViewItem>
-                <ListViewItem>📄 Data.json</ListViewItem>
-                <ListViewItem>📁 Logs</ListViewItem>
-            </ListView>
+                <!-- Панель сервера -->
+                <Border Grid.Row="0" Background="#2D2D30" Padding="10,8">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="🖥️ SERVER1" 
+                                   FontWeight="Bold" 
+                                   FontSize="14" 
+                                   Foreground="#FFFFFF"
+                                   VerticalAlignment="Center"/>
+                        <TextBlock Text="(0001)" 
+                                   FontSize="11" 
+                                   Foreground="#888888"
+                                   Margin="5,0,0,0"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
 
-            <!-- Buttons -->
-            <StackPanel Grid.Row="2"
-                        Orientation="Horizontal"
-                        HorizontalAlignment="Center"
-                        Margin="10">
-                <Button Content="Open" Width="80" Margin="5"/>
-                <Button Content="Upload" Width="80" Margin="5"/>
-                <Button Content="Edit" Width="80" Margin="5"/>
-                <Button Content="Delete" Width="80" Margin="5"/>
-                <Button Content="Download" Width="80" Margin="5"/>
-                <Button Content="Run" Width="80" Margin="5"/>
-            </StackPanel>
-        </Grid>
+                <!-- Панель інструментів -->
+                <Border Grid.Row="1" Background="#252526" Padding="8,6" BorderBrush="#3F3F46" BorderThickness="0,1">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
+                        <TextBlock Text="📁" FontSize="16" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                        <TextBlock Text=".../shared/" 
+                                   FontSize="12" 
+                                   Foreground="#CCCCCC"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
 
-    </DockPanel>
+                <!-- Файлова структура -->
+                <TreeView Grid.Row="2" 
+                          Background="#1E1E1E"
+                          BorderThickness="0"
+                          Padding="10">
+                    <TreeView.Resources>
+                        <Style TargetType="TreeViewItem" BasedOn="{StaticResource TreeViewItemStyle}"/>
+                    </TreeView.Resources>
+
+                    <TreeViewItem Header="📁 folder1" IsExpanded="True">
+                        <TreeViewItem Header="📄 Data.JSON"/>
+                        <TreeViewItem Header="📊 Logs"/>
+                        <TreeViewItem Header="🔄 run.bat"/>
+                    </TreeViewItem>
+                </TreeView>
+            </Grid>
+        </Border>
+
+        <!-- Вертикальний Splitter -->
+        <GridSplitter Grid.Column="4" Grid.Row="0" Grid.RowSpan="3"
+                      Width="5" 
+                      HorizontalAlignment="Stretch"
+                      Background="#3F3F46"/>
+
+        <!-- ========== ПРАВА ПАНЕЛЬ: TERMINAL ========== -->
+        <Border Grid.Column="5" Grid.Row="0" Grid.RowSpan="3"
+                Background="#252526" 
+                BorderBrush="#3F3F46" 
+                BorderThickness="1,0,0,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Заголовок TERMINAL -->
+                <Border Grid.Row="0" Background="#2D2D30" Padding="10,8">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="⚙️" FontSize="16" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBlock Text="TERMINAL" 
+                                   FontWeight="Bold" 
+                                   FontSize="14" 
+                                   Foreground="#FFFFFF"
+                                   VerticalAlignment="Center"/>
+                        <Button Content="⚙" 
+                                Style="{StaticResource ModernButton}"
+                                Width="30" Height="30"
+                                Margin="10,0,0,0"
+                                ToolTip="SETTINGS"
+                                HorizontalAlignment="Right"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Кнопки дій -->
+                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="10">
+                        <Button Content="📂 OPEN" Style="{StaticResource ModernButton}" Height="35"/>
+                        <Button Content="✏️ EDIT" Style="{StaticResource ModernButton}" Height="35"/>
+                        <Button Content="🗑️ DELETE" Style="{StaticResource ModernButton}" Height="35"/>
+                        <Button Content="⬇️ DOWNLOAD" Style="{StaticResource ModernButton}" Height="35"/>
+                        <Button Content="▶️ RUN" Style="{StaticResource ModernButton}" Height="35"/>
+
+                        <Separator Margin="0,10" Background="#3F3F46"/>
+
+                        <TextBlock Text="Quick Actions:" 
+                                   Foreground="#888888" 
+                                   FontSize="11"
+                                   Margin="0,5,0,3"/>
+
+                        <Button Content="📥 Upload File" Style="{StaticResource ModernButton}" Height="30"/>
+                        <Button Content="➕ New Folder" Style="{StaticResource ModernButton}" Height="30"/>
+                        <Button Content="🔄 Refresh" Style="{StaticResource ModernButton}" Height="30"/>
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- Settings Button -->
+                <Button Grid.Row="2" 
+                        Content="⚙️ SETTINGS" 
+                        Style="{StaticResource ModernButton}"
+                        Height="40"
+                        Margin="10,0,10,10"
+                        FontWeight="SemiBold"/>
+            </Grid>
+        </Border>
+
+        <!-- Горизонтальний Splitter -->
+        <GridSplitter Grid.Column="0" Grid.ColumnSpan="6"
+                      Height="5" 
+                      HorizontalAlignment="Stretch"
+                      Background="#3F3F46" Margin="0,379,0,0" Grid.RowSpan="2"/>
+
+        <!-- ========== НИЖНЯ ПАНЕЛЬ: LOGS/CONSOLE ========== -->
+        <Border Grid.Column="0" Grid.ColumnSpan="6" Grid.Row="1"
+                Background="#0C0C0C" 
+                BorderBrush="#3F3F46" 
+                BorderThickness="0,1,0,0" Margin="0,5,0,0" Grid.RowSpan="2">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Заголовок консолі -->
+                <Border Grid.Row="0" Background="#1E1E1E" Padding="10,6">
+                    <TextBlock Text="📋 LOGS" 
+                               FontWeight="SemiBold" 
+                               FontSize="12" 
+                               Foreground="#CCCCCC"/>
+                </Border>
+
+                <!-- Консоль з логами -->
+                <TextBox Grid.Row="1"
+                         Style="{StaticResource ConsoleTextBox}"
+                         TextWrapping="Wrap"
+                         AcceptsReturn="True"
+                         VerticalScrollBarVisibility="Auto"
+                         IsReadOnly="True">
+                    <TextBox.Text>
+                        [INFO] 10:11AAAA-0002 DOWNLOAD Data.JSON;
+[INFO] 10:44AAAA-0003 RUN RUN.bat;
+[INFO] 13:21AAAA-0001 EDIT folder1;
+[INFO] 30:14AAAA-0001 DELETE Properties.JSON;
+[INFO] 31:14AAAA-0001 UPLOAD Properties.JSON;
+[INFO] 44:14AAAA-1012 OPEN Logs;
+                    </TextBox.Text>
+                </TextBox>
+            </Grid>
+        </Border>
+
+    </Grid>
 </Window>
