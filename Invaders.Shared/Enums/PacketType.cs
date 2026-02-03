@@ -9,5 +9,13 @@ public enum PacketType
     Command,
     LogRequest,
     Error,
-    Success
+    Success,
+    AuthRequest,
+    AuthResponse,
+
+    FileListRequest,
+    FileListResponse,
+
+    FileDownloadRequest,
+    FileDeleteRequest
 }

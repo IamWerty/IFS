@@ -4,7 +4,11 @@ using System.Text;
 
 namespace Invaders.Shared.Models
 {
-    internal class User
+    public class User
     {
+        public string Nickname { get; set; } = "";
+        public string ComputerName { get; set; } = "";
+        public string ID { get; set; } = "";
+        public string Role { get; set; } = "Client";
     }
 }

@@ -20,4 +20,8 @@ public static class PacketSerializer
     {
         return JsonSerializer.Deserialize<Packet>(json, _options)!;
     }
+    public static T Deserialize<T>(string json)
+    {
+        return JsonSerializer.Deserialize<T>(json)!;
+    }
 }

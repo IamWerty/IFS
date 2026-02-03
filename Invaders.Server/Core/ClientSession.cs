@@ -1,4 +1,6 @@
-﻿using Invaders.Shared.Enums;
+﻿using Invaders.Server.Services;
+using Invaders.Shared.Enums;
+using Invaders.Shared.Models;
 using Invaders.Shared.Network;
 using System.Net.Sockets;
 using System.Text;
@@ -8,6 +10,7 @@ namespace Invaders.Server.Core;
 public class ClientSession
 {
     private readonly TcpClient _client;
+    private static AuthService _auth = new AuthService();
 
     public ClientSession(TcpClient client)
     {
@@ -30,15 +33,23 @@ public class ClientSession
                 var packet = PacketSerializer.Deserialize(json);
                 Console.WriteLine($"[PACKET] {packet.Type} | {packet.Data}");
 
-                // Тестова відповідь
-                var response = new Packet
+                if (packet.Type == PacketType.Login)
                 {
-                    Type = PacketType.Success,
-                    Data = "Packet received!"
-                };
+                    var parts = packet.Data.Split(';');
+                    string nick = parts[0].Split('=')[1];
+                    string pc = parts[1].Split('=')[1];
 
-                byte[] bytes = PacketSerializer.Serialize(response);
-                await stream.WriteAsync(bytes);
+                    var user = _auth.Login(nick, pc);
+
+                    var response = new Packet
+                    {
+                        Type = PacketType.Success,
+                        Data = $"{user.Nickname}|{user.ID}|{user.Role}"
+                    };
+
+                    byte[] bytes = PacketSerializer.Serialize(response);
+                    await stream.WriteAsync(bytes);
+                }
             }
         }
         catch (Exception ex)

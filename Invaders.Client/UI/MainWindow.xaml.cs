@@ -1,33 +1,30 @@
-﻿using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using Invaders.Client.Network;
+﻿using System.Windows;
 
 namespace Invaders.Client.UI
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
+        private MainViewModel VM => (MainViewModel)DataContext;
+
         public MainWindow()
         {
             InitializeComponent();
-            Loaded += MainWindow_OnLoaded; // коли вікно завантажилось
+            DataContext = new MainViewModel();
         }
 
-        private async void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
+        private async void Connect_Click(object sender, RoutedEventArgs e)
         {
-            var client = new ClientConnection();
-            await client.ConnectAsync("127.0.0.1", 9000);
-            await client.SendLoginPacket();
+            await VM.Connect();
+        }
+
+        private async void Login_Click(object sender, RoutedEventArgs e)
+        {
+            await VM.Login();
+        }
+
+        private async void Refresh_Click(object sender, RoutedEventArgs e)
+        {
+            await VM.RefreshFiles();
         }
     }
 }

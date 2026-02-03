@@ -1,39 +1,35 @@
-﻿using Invaders.Shared.Enums;
-using Invaders.Shared.Network;
-using System.IO;
+﻿using System.IO;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading.Tasks;
+using Invaders.Shared.Network;
 
-namespace Invaders.Client.Network;
-
-public class ClientConnection
+namespace Invaders.Client.Network
 {
-    private TcpClient? _client;
-    private NetworkStream? _stream;
-
-    public async Task ConnectAsync(string ip, int port)
+    public class ClientConnection
     {
-        _client = new TcpClient();
-        await _client.ConnectAsync(ip, port);
-        _stream = _client.GetStream();
-    }
+        private TcpClient? _client;
+        private NetworkStream? _stream;
 
-    public async Task SendLoginPacket()
-    {
-        var packet = new Packet
+        public async Task ConnectAsync(string ip, int port)
         {
-            Type = PacketType.Login,
-            Data = "Nick=TestUser;PC=MyComputer"
-        };
+            _client = new TcpClient();
+            await _client.ConnectAsync(ip, port);
+            _stream = _client.GetStream();
+        }
 
-        byte[] bytes = PacketSerializer.Serialize(packet);
-        await _stream.WriteAsync(bytes);
+        public async Task Send(Packet packet)
+        {
+            var json = PacketSerializer.Serialize(packet);
+            var data = Encoding.UTF8.GetBytes(json + "\n");
+            await _stream.WriteAsync(data);
+        }
 
-        // Читаємо відповідь
-        var reader = new StreamReader(_stream, Encoding.UTF8);
-        string json = await reader.ReadLineAsync();
-
-        var response = PacketSerializer.Deserialize(json);
-        Console.WriteLine($"[SERVER RESPONSE] {response.Data}");
+        public async Task<Packet> Receive()
+        {
+            var reader = new StreamReader(_stream!, Encoding.UTF8);
+            var json = await reader.ReadLineAsync();
+            return PacketSerializer.Deserialize(json!);
+        }
     }
 }
