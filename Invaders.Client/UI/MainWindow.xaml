@@ -1,12 +1,124 @@
 ﻿<Window x:Class="Invaders.Client.UI.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Invaders.Client"
-        mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="IFS — Invaders File Server"
+        Height="600" Width="1000"
+        Background="#1E1E1E"
+        Foreground="White">
 
-    </Grid>
+    <DockPanel>
+
+        <!-- ===== BOTTOM: LOG PANEL ===== -->
+        <Border DockPanel.Dock="Bottom"
+                Height="160"
+                Background="#111"
+                BorderBrush="#333"
+                BorderThickness="1">
+            <TextBox
+                IsReadOnly="True"
+                Background="#111"
+                Foreground="#8FCE00"
+                FontFamily="Consolas"
+                TextWrapping="Wrap"
+                VerticalScrollBarVisibility="Auto"
+                Text="
+[14:07] DOWNLOAD Data.json
+[14:08] RUN run.bat
+[14:30] EDIT Data.json
+[14:31] DELETE properties.json
+[14:37] UPLOAD properties.json
+[15:41] OPEN Logs"/>
+        </Border>
+
+        <!-- ===== RIGHT PANEL ===== -->
+        <Border DockPanel.Dock="Right"
+                Width="200"
+                Background="#2A2A2A"
+                BorderBrush="#333"
+                BorderThickness="1">
+            <TabControl Background="#2A2A2A">
+                <TabItem Header="Events">
+                    <ListBox>
+                        <ListBoxItem>Client connected</ListBoxItem>
+                        <ListBoxItem>File uploaded</ListBoxItem>
+                        <ListBoxItem>Command executed</ListBoxItem>
+                    </ListBox>
+                </TabItem>
+
+                <TabItem Header="Terminal">
+                    <TextBox FontFamily="Consolas"
+                             Background="Black"
+                             Foreground="#00FF00"
+                             AcceptsReturn="True"
+                             Text=">_"/>
+                </TabItem>
+
+                <TabItem Header="Settings">
+                    <StackPanel Margin="10">
+                        <Button Content="Server settings" Margin="0 5"/>
+                        <Button Content="Network" Margin="0 5"/>
+                        <Button Content="Security" Margin="0 5"/>
+                    </StackPanel>
+                </TabItem>
+            </TabControl>
+        </Border>
+
+        <!-- ===== LEFT PANEL ===== -->
+        <Border DockPanel.Dock="Left"
+                Width="220"
+                Background="#2A2A2A"
+                BorderBrush="#333"
+                BorderThickness="1">
+            <TreeView Background="#2A2A2A">
+                <TreeViewItem Header="USER">
+                    <TreeViewItem Header="SERVER-AAAA">
+                        <TreeViewItem Header="Alex"/>
+                        <TreeViewItem Header="Bob"/>
+                    </TreeViewItem>
+                </TreeViewItem>
+
+                <TreeViewItem Header="SERVER-0001">
+                    <TreeViewItem Header="Werty"/>
+                    <TreeViewItem Header="Oksana"/>
+                    <TreeViewItem Header="Tony"/>
+                </TreeViewItem>
+            </TreeView>
+        </Border>
+
+        <!-- ===== CENTER PANEL ===== -->
+        <Grid Background="#1E1E1E">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Path -->
+            <TextBlock Grid.Row="0"
+                       Margin="10"
+                       Text="\\shared\"
+                       FontWeight="Bold"/>
+
+            <!-- Files -->
+            <ListView Grid.Row="1" Margin="10">
+                <ListViewItem>📁 Folder1</ListViewItem>
+                <ListViewItem>📄 Data.json</ListViewItem>
+                <ListViewItem>📁 Logs</ListViewItem>
+            </ListView>
+
+            <!-- Buttons -->
+            <StackPanel Grid.Row="2"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Center"
+                        Margin="10">
+                <Button Content="Open" Width="80" Margin="5"/>
+                <Button Content="Upload" Width="80" Margin="5"/>
+                <Button Content="Edit" Width="80" Margin="5"/>
+                <Button Content="Delete" Width="80" Margin="5"/>
+                <Button Content="Download" Width="80" Margin="5"/>
+                <Button Content="Run" Width="80" Margin="5"/>
+            </StackPanel>
+        </Grid>
+
+    </DockPanel>
 </Window>
