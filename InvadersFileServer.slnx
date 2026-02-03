@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="Invaders.Client/Invaders.Client.csproj" />
+  <Project Path="Invaders.Security/Invaders.Security.csproj" />
+  <Project Path="Invaders.Server/Invaders.Server.csproj" />
+  <Project Path="Invaders.Shared/Invaders.Shared.csproj" />
+</Solution>
