@@ -17,17 +17,5 @@ namespace Invaders.Client.UI
     /// </summary>
     public partial class MainWindow : Window
     {
-        public MainWindow()
-        {
-            InitializeComponent();
-            Loaded += MainWindow_OnLoaded; // коли вікно завантажилось
-        }
-
-        private async void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
-        {
-            var client = new ClientConnection();
-            await client.ConnectAsync("127.0.0.1", 9000);
-            await client.SendLoginPacket();
-        }
     }
 }

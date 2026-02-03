@@ -1,4 +1,6 @@
-﻿using System.Net.Sockets;
+﻿using Invaders.Shared.Enums;
+using Invaders.Shared.Network;
+using System.Net.Sockets;
 using System.Text;
 
 namespace Invaders.Server.Core;
@@ -20,26 +22,28 @@ public class ClientSession
             using var reader = new StreamReader(stream, Encoding.UTF8);
             using var writer = new StreamWriter(stream, Encoding.UTF8) { AutoFlush = true };
 
-            await writer.WriteLineAsync("CONNECTED_TO_INVADERS_SERVER");
-
             while (true)
             {
-                string request = await reader.ReadLineAsync();
-                if (request == null) break;
+                string json = await reader.ReadLineAsync();
+                if (json == null) break;
 
-                Console.WriteLine($"[REQUEST] {request}");
+                var packet = PacketSerializer.Deserialize(json);
+                Console.WriteLine($"[PACKET] {packet.Type} | {packet.Data}");
 
-                await writer.WriteLineAsync($"ECHO: {request}");
+                // Тестова відповідь
+                var response = new Packet
+                {
+                    Type = PacketType.Success,
+                    Data = "Packet received!"
+                };
+
+                byte[] bytes = PacketSerializer.Serialize(response);
+                await stream.WriteAsync(bytes);
             }
         }
         catch (Exception ex)
         {
             Console.WriteLine($"[ERROR] {ex.Message}");
-        }
-        finally
-        {
-            _client.Close();
-            Console.WriteLine("[SERVER] Client disconnected");
         }
     }
 }
